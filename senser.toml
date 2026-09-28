@@ -1,0 +1,8 @@
+# Der Senser configuration. Relative paths are resolved against this file.
+# For your own cards, copy this to ~/.config/senser/senser.toml and point
+# cards_dir at your private cards folder.
+
+cards_dir = "examples/cards"
+db_path = ".senser/state.db"
+new_per_day = 15
+desired_retention = 0.9
