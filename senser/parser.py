@@ -2,7 +2,9 @@
 
 A card is a level-2 heading of the form `## <Type>: <title> ^<id>`,
 followed by its body up to the next heading. Other headings are
-ignored, so card files can mix cards with regular notes.
+ignored, so card files can mix cards with regular notes. An optional
+`DE: ...` line in the body holds a German version of the prompt.
+Files named README.md are skipped. See docs/cards.md.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ TRAILING_ID = re.compile(r"\^[a-z0-9-]+$")
 VALID_ID = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 CLOZE = re.compile(r"\{\{(.+?)\}\}")
 LIST_ITEM = re.compile(r"^(?:\d+[.)]|[-*])\s+", re.MULTILINE)
+GERMAN = re.compile(r"^DE:[ \t]*(.*?)[ \t]*$", re.MULTILINE)
 
 KINDS = {
     "q": Kind.QA,
@@ -60,6 +63,8 @@ def load_cards(root: Path) -> Collection:
     issues: list[Issue] = []
     seen: dict[str, Card] = {}
     for path in sorted(root.rglob("*.md")):
+        if path.name.lower() == "readme.md":
+            continue
         relative = path.relative_to(root)
         default_deck = "/".join(relative.parent.parts) or relative.stem
         file_cards, file_issues = parse_text(path.read_text(encoding="utf-8"), path, default_deck)
@@ -108,13 +113,32 @@ def parse_text(text: str, source: Path, default_deck: str) -> tuple[list[Card], 
             continue
 
         try:
+            body, german = _split_german(kind, body)
             faces = _faces(kind, match["title"] or "", body)
         except ValueError as exc:
             issues.append(Issue(source, number, str(exc)))
             continue
         for suffix, prompt, answer in faces:
-            cards.append(Card(card_id + suffix, deck, kind, prompt, answer, tags, source, number))
+            cards.append(Card(card_id + suffix, deck, kind, prompt, answer, tags, source, number, german))
     return cards, issues
+
+
+def _split_german(kind: Kind, body: str) -> tuple[str, str]:
+    """Remove the `DE:` line from the body and return (body, German prompt)."""
+    matches = list(GERMAN.finditer(body))
+    if not matches:
+        return body, ""
+    if kind is Kind.TERM:
+        raise ValueError("Term cards are already bilingual, remove the 'DE:' line")
+    if len(matches) > 1:
+        raise ValueError("only one 'DE:' line per card")
+    german = matches[0][1]
+    if not german:
+        raise ValueError("'DE:' line is empty")
+    body = (body[:matches[0].start()] + body[matches[0].end():]).strip()
+    if kind is Kind.CLOZE:
+        german = CLOZE.sub("**[…]**", german)
+    return body, german
 
 
 def _faces(kind: Kind, title: str, body: str) -> list[tuple[str, str, str]]:

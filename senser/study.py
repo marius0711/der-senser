@@ -66,11 +66,14 @@ class Session:
             raise IndexError("session is finished")
         return self._scheduler.outcomes(self._states.get(self.current.id), now)
 
-    def answer(self, outcome: Outcome, duration_ms: int | None = None) -> None:
-        """Store the chosen outcome for the current card and advance."""
+    def answer(self, outcome: Outcome, duration_ms: int | None = None, hint: bool = False) -> None:
+        """Store the chosen outcome for the current card and advance.
+
+        `hint` records whether the German prompt was shown.
+        """
         card = self._queue.popleft()
         state, log = outcome
-        self._store.record(card.id, state, log, duration_ms)
+        self._store.record(card.id, state, log, duration_ms, hint)
         self._states[card.id] = state
         if state.due - log.review_datetime <= REQUEUE_WINDOW:
             self._queue.append(card)

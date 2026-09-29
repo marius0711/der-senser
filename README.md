@@ -27,36 +27,25 @@ A card is a level-2 heading `## <Type>: <title> ^<id>` followed by its body. Any
 heading is treated as a regular note, so card files can double as study notes.
 
 ```markdown
----
-deck: actuators          # optional, defaults to the folder name
-tags: [gearbox]
----
-
 ## Q: What are the three components of a strain wave gear? ^ac-001
+DE: Aus welchen drei Bauteilen besteht ein Wellgetriebe?
 Wave generator, flexspline, circular spline.
 
 ## Cloze: Gear ratio ^ac-002
 The flexspline typically has {{2}} fewer teeth than the circular spline.
 
 ## Term: Traglast = payload ^ro-003
-Asked in both directions, optional note below.
 
 ## Sequence: The 8D steps ^qa-002
 1. D1: Form the team
 2. D2: Describe the problem
-3. ...
 ```
 
-| Type | Asks | Answer |
-|---|---|---|
-| `Q` | the title | the body |
-| `Cloze` | the body with `{{blanks}}` hidden | the body with blanks filled |
-| `Term` | `left = right`, both directions | the other side plus the note |
-| `Sequence` | the title and the number of steps | the ordered list |
+The optional `DE:` line holds a German version of the question. It is shown on request
+(**D** key) and its use is tracked.
 
-**Ids** (`^ac-001`) are lowercase letters, digits and `-`. They must be unique and stable,
-because review history is tied to the id rather than the text, so you can fix typos without
-losing progress. `senser lint` reports missing and duplicate ids.
+**The full guide for writing cards, covering types, ids, the German line, style and
+the checklist, is in [docs/cards.md](docs/cards.md).**
 
 ## Commands
 
@@ -67,11 +56,12 @@ losing progress. `senser lint` reports missing and duplicate ids.
 | `senser status [-d DECK]` | Cards, new, due and mastery per deck, plus reviews today, pass rate and streak |
 | `senser list [-d DECK]` | All cards with their next due date |
 | `senser lint` | Validate card files |
+| `senser ids` | Id prefixes in use and the next free id per deck |
 
 ### Web interface
 
-- **Dashboard**: mastery, due and new cards per deck, reviews today, 30-day pass rate, streak
-- **Review**: **Space** reveals the answer, **1–4** rates it (Again, Hard, Good, Easy), **Esc** goes back.
+- **Dashboard**: mastery, due and new cards per deck, reviews today, 30-day pass rate, German help rate, streak
+- **Review**: **Space** reveals the answer, **D** shows the German question, **1–4** rates it (Again, Hard, Good, Easy), **Esc** goes back.
   Each rating button shows the interval it will schedule.
 - **Cards**: all cards per deck with recall probability and next review date
 

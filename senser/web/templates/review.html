@@ -12,6 +12,12 @@
 
   <article class="flashcard prompt{% if card.kind == 'cloze' %} replaced-on-reveal{% endif %}">
     {{ card.prompt|markdown|safe }}
+    {% if card.prompt_de %}
+    <details id="german" class="german">
+      <summary>Deutsch <kbd>D</kbd></summary>
+      <div class="german-text">{{ card.prompt_de|markdown|safe }}</div>
+    </details>
+    {% endif %}
   </article>
 
   <details id="reveal">
@@ -22,6 +28,7 @@
     <form method="post" action="/review/answer" class="ratings">
       <input type="hidden" name="card_id" value="{{ card.id }}">
       <input type="hidden" name="duration_ms" value="">
+      <input type="hidden" name="hint" value="0">
       {% for r in ratings %}
       <button type="submit" name="rating" value="{{ r.value }}" class="rate rate-{{ r.name|lower }}">
         <span class="rate-name">{{ r.name }}</span>
@@ -31,7 +38,7 @@
       {% endfor %}
     </form>
   </details>
-  <p class="muted small center">Space: show answer · 1–4: rate · Esc: back to dashboard</p>
+  <p class="muted small center">Space: show answer{% if card.prompt_de %} · D: German{% endif %} · 1–4: rate · Esc: back to dashboard</p>
 </section>
 {% else %}
 <section class="done">

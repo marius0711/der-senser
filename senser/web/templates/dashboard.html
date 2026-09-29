@@ -27,6 +27,7 @@
   <div class="tile"><span class="label">New left today</span><span class="value">{{ new_limit }}</span></div>
   <div class="tile"><span class="label">Reviews today</span><span class="value">{{ activity.reviews_today }}</span></div>
   <div class="tile"><span class="label">Pass rate 30d</span><span class="value">{% if activity.pass_rate_30d is not none %}{{ "%.0f"|format(activity.pass_rate_30d * 100) }}%{% else %}–{% endif %}</span></div>
+  <div class="tile"><span class="label">German help 30d</span><span class="value">{% if activity.hint_rate_30d is not none %}{{ "%.0f"|format(activity.hint_rate_30d * 100) }}%{% else %}–{% endif %}</span></div>
   <div class="tile"><span class="label">Streak</span><span class="value">{{ activity.streak_days }}<small> {{ "day" if activity.streak_days == 1 else "days" }}</small></span></div>
 </section>
 

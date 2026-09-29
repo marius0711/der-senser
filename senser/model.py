@@ -30,6 +30,7 @@ class Card:
     tags: tuple[str, ...]
     source: Path
     line: int
+    prompt_de: str = ""  # optional German version of the prompt, shown on request
 
     @property
     def base_id(self) -> str:

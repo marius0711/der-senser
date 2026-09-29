@@ -73,3 +73,31 @@ def test_load_cards_derives_deck_and_detects_duplicates(tmp_path):
     assert [c.deck for c in collection.cards] == ["sensors", "sensors"]
     assert len(collection.issues) == 1
     assert "duplicate id 'x-1'" in collection.issues[0].message
+
+
+def test_german_prompt_line():
+    [card], issues = parse("## Q: What is a strain gauge? ^s-1\nDE: Was ist ein DMS?\nA resistor.\n")
+    assert issues == []
+    assert card.prompt_de == "Was ist ein DMS?"
+    assert card.answer == "A resistor."
+
+
+def test_german_cloze_is_masked():
+    [card], _ = parse("## Cloze ^c-1\nDE: Das Verhältnis ist {{100:1}}.\nThe ratio is {{100:1}}.\n")
+    assert card.prompt_de == "Das Verhältnis ist **[…]**."
+    assert "DE:" not in card.answer
+
+
+def test_german_line_problems():
+    text = (
+        "## Term: Traglast = payload ^t-1\nDE: nicht nötig\n"
+        "## Q: Twice? ^q-1\nDE: eins\nDE: zwei\nanswer\n"
+    )
+    cards, issues = parse(text)
+    assert cards == []
+    assert [issue.line for issue in issues] == [1, 3]
+
+
+def test_readme_files_are_skipped(tmp_path):
+    (tmp_path / "README.md").write_text("## Q: Example? ^x-1\nnot a real card\n")
+    assert load_cards(tmp_path).cards == []

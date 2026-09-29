@@ -5,6 +5,7 @@ tags: [npi, dfa]
 # New product introduction
 
 ## Q: Name key Design for Assembly (DFA) principles. ^in-001
+DE: Nenne wichtige Prinzipien der montagegerechten Konstruktion (Design for Assembly).
 - Reduce the **part count** (combine functions)
 - **Self-locating and self-aligning** features, chamfers, lead-ins
 - **Top-down** assembly along a single axis where possible
@@ -13,6 +14,7 @@ tags: [npi, dfa]
 - Use **standard parts** across variants
 
 ## Sequence: Typical hardware build phases up to series production ^in-002
+DE: Typische Build-Phasen bei Hardware bis zur Serienproduktion
 1. Prototype / proof of concept
 2. EVT: engineering validation test (does the design work?)
 3. DVT: design validation test (does it meet all specs and certifications?)

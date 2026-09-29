@@ -1,6 +1,7 @@
 // Keyboard shortcuts for the review page and answer timing.
 (() => {
   const reveal = document.getElementById("reveal");
+  const german = document.getElementById("german");
   const form = document.querySelector("form.ratings");
   const shownAt = performance.now();
 
@@ -12,7 +13,13 @@
       return;
     }
     form.dataset.sent = "1";
+    form.elements.hint.value = german?.dataset.used ? "1" : "0";
     form.elements.duration_ms.value = Math.round(performance.now() - shownAt);
+  });
+
+  // Opening the German prompt once counts as help for this review.
+  german?.addEventListener("toggle", () => {
+    if (german.open) german.dataset.used = "1";
   });
 
   document.addEventListener("keydown", (event) => {
@@ -23,6 +30,12 @@
       return;
     }
     if (!reveal) return;
+
+    if (german && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      german.open = !german.open;
+      return;
+    }
 
     if (!reveal.open && (event.key === " " || event.key === "Enter")) {
       event.preventDefault();

@@ -59,3 +59,16 @@ def test_stale_answer_is_ignored(client):
 def test_cards_filter(client):
     page = client.get("/cards?deck=sensors")
     assert "s-1" in page.text and "s-2" in page.text
+
+
+def test_german_help_is_recorded(tmp_path):
+    deck = tmp_path / "cards" / "sensors"
+    deck.mkdir(parents=True)
+    (deck / "gauges.md").write_text("## Q: What is a strain gauge? ^s-1\nDE: Was ist ein DMS?\nA resistor.\n")
+    config = Config(cards_dir=tmp_path / "cards", db_path=tmp_path / "state.db")
+    with TestClient(create_app(config)) as client:
+        page = client.get("/review/start")
+        assert "Was ist ein DMS?" in page.text
+        client.post("/review/answer", data={"card_id": "s-1", "rating": 3, "hint": 1})
+        assert "German help 30d" in client.get("/").text
+        assert ">100%<" in client.get("/").text.split("German help 30d")[1][:80]

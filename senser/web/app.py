@@ -102,10 +102,12 @@ def create_app(config: Config) -> FastAPI:
         return templates.TemplateResponse(request, "review.html", context)
 
     @app.post("/review/answer")
-    async def review_answer(card_id: str = Form(), rating: int = Form(), duration_ms: int | None = Form(None)):
+    async def review_answer(
+        card_id: str = Form(), rating: int = Form(), duration_ms: int | None = Form(None), hint: bool = Form(False)
+    ):
         # Ignore stale or repeated submissions (back button, double click).
         if web.session and web.session.current and web.pending and web.pending[0] == card_id == web.session.current.id:
-            web.session.answer(web.pending[1][Rating(rating)], duration_ms)
+            web.session.answer(web.pending[1][Rating(rating)], duration_ms, hint)
             web.reviewed += 1
             web.pending = None
         return RedirectResponse("/review", status_code=303)

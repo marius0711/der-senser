@@ -65,3 +65,23 @@ def test_mastery_and_activity():
         act = activity(store.reviews(), NOW)
         assert act.pass_rate_30d == 0.5
         assert act.streak_days == 1
+
+
+def test_hint_is_recorded_and_old_databases_migrate(tmp_path):
+    import sqlite3
+
+    db = tmp_path / "old.db"
+    legacy = sqlite3.connect(db)
+    legacy.execute(
+        "CREATE TABLE reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, card_id TEXT NOT NULL, "
+        "rating INTEGER NOT NULL, reviewed_at TEXT NOT NULL, duration_ms INTEGER)"
+    )
+    legacy.execute("INSERT INTO reviews (card_id, rating, reviewed_at) VALUES ('a-9', 3, ?)", (NOW.isoformat(),))
+    legacy.commit()
+    legacy.close()
+
+    with Store(db) as store:
+        session = make_session(store)
+        session.answer(session.outcomes(NOW)[Rating.Good], duration_ms=500, hint=True)
+        assert [review.hint for review in store.reviews()] == [False, True]
+        assert activity(store.reviews(), NOW).hint_rate_30d == 0.5

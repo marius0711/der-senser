@@ -264,6 +264,28 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 60%, transparen
 .flashcard li + li { margin-top: 3px; }
 .flashcard.answer { margin-top: 16px; border-left: 4px solid var(--good); }
 
+.german { margin-top: 14px; font-size: 0.95rem; font-weight: 400; }
+.german > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.german > summary:hover { color: var(--text); }
+.german[open] > summary { color: var(--accent); }
+.german kbd { padding: 0 5px; border-radius: 4px; background: var(--surface-2); font-size: 0.72rem; }
+.german-text {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-style: italic;
+}
+.german-text > :first-child { margin-top: 0; }
+.german-text > :last-child { margin-bottom: 0; }
+
 /* Cloze: the filled-in answer replaces the masked prompt. */
 .review:has(details[open]) .replaced-on-reveal { display: none; }
 .review:has(details[open]) .replaced-on-reveal + details .answer { margin-top: 0; }

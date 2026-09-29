@@ -26,6 +26,7 @@ class DeckStats:
 class Activity:
     reviews_today: int
     pass_rate_30d: float | None  # share of reviews not rated "Again"
+    hint_rate_30d: float | None  # share of reviews that needed the German prompt
     streak_days: int
 
 
@@ -66,5 +67,6 @@ def activity(reviews: list[Review], now: datetime) -> Activity:
     return Activity(
         reviews_today=sum(1 for review in reviews if review.reviewed_at.astimezone().date() == today),
         pass_rate_30d=passed / len(recent) if recent else None,
+        hint_rate_30d=sum(review.hint for review in recent) / len(recent) if recent else None,
         streak_days=streak,
     )

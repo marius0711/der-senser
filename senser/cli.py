@@ -97,7 +97,14 @@ def _run(session: Session) -> int:
             console.print(f"[dim]{escape(card.deck)} · {card.kind} · {len(session)} left[/]")
             console.print(Panel(Markdown(card.prompt), border_style="cyan", padding=(1, 2)))
             started = time.monotonic()
-            if console.input("[dim]Enter = show answer · q = quit[/] ").strip().lower() == "q":
+            hint = False
+            keys = "Enter = show answer · d = Deutsch · q = quit" if card.prompt_de else "Enter = show answer · q = quit"
+            key = console.input(f"[dim]{keys}[/] ").strip().lower()
+            if key == "d" and card.prompt_de:
+                hint = True
+                console.print(Panel(Markdown(card.prompt_de), title="Deutsch", border_style="dim", padding=(0, 2)))
+                key = console.input("[dim]Enter = show answer · q = quit[/] ").strip().lower()
+            if key == "q":
                 break
 
             console.print(Panel(Markdown(card.answer), border_style="green", padding=(1, 2)))
@@ -107,7 +114,7 @@ def _run(session: Session) -> int:
             if choice == "q":
                 break
             duration_ms = int((time.monotonic() - started) * 1000)
-            session.answer(outcomes[Rating(int(choice))], duration_ms)
+            session.answer(outcomes[Rating(int(choice))], duration_ms, hint)
             reviewed += 1
     except (KeyboardInterrupt, EOFError):
         console.print()
@@ -148,9 +155,11 @@ def status(deck: DeckOption = None, config: ConfigOption = None) -> None:
 
     act = activity(history, now)
     pass_rate = f"{act.pass_rate_30d:.0%}" if act.pass_rate_30d is not None else "–"
+    hint_rate = f"{act.hint_rate_30d:.0%}" if act.hint_rate_30d is not None else "–"
     console.print(
         f"Today: [bold]{act.reviews_today}[/] reviews · "
         f"Pass rate (30d): [bold]{pass_rate}[/] · "
+        f"German help (30d): [bold]{hint_rate}[/] · "
         f"Streak: [bold]{act.streak_days}[/] day(s)"
     )
 
@@ -185,6 +194,31 @@ def list_cards(deck: DeckOption = None, config: ConfigOption = None) -> None:
         state = states.get(card.id)
         due = state.due.astimezone().strftime("%Y-%m-%d %H:%M") if state else "new"
         table.add_row(card.id, escape(card.deck), card.kind, escape(card.prompt.splitlines()[0]), due)
+    console.print(table)
+
+
+@app.command()
+def ids(config: ConfigOption = None) -> None:
+    """Show the id prefixes in use and the next free id for each."""
+    _, collection = _load(config)
+    prefixes: dict[str, dict] = {}
+    for card in collection.cards:
+        prefix, _, number = card.base_id.rpartition("-")
+        if not prefix or not number.isdigit():
+            continue
+        entry = prefixes.setdefault(prefix, {"decks": set(), "ids": set(), "last": 0, "width": len(number)})
+        entry["decks"].add(card.deck)
+        entry["ids"].add(card.base_id)
+        entry["last"] = max(entry["last"], int(number))
+
+    table = Table(title="Card ids", title_justify="left")
+    table.add_column("Prefix")
+    table.add_column("Deck")
+    table.add_column("Cards", justify="right")
+    table.add_column("Next free id", style="green")
+    for prefix, entry in sorted(prefixes.items(), key=lambda item: sorted(item[1]["decks"])):
+        next_id = f"{prefix}-{entry['last'] + 1:0{entry['width']}d}"
+        table.add_row(prefix, escape(", ".join(sorted(entry["decks"]))), str(len(entry["ids"])), next_id)
     console.print(table)
 
 
