@@ -25,8 +25,8 @@ from senser.study import Session, remaining_new
 
 app = typer.Typer(
     name="senser",
-    help="Der Senser: spaced-repetition flashcards in Markdown.",
-    no_args_is_help=True,
+    help="Der Senser: spaced-repetition flashcards in Markdown. Without a command, starts the web interface.",
+    invoke_without_command=True,
     add_completion=False,
 )
 console = Console()
@@ -208,3 +208,10 @@ def serve(
     if open_browser:
         threading.Timer(1.0, webbrowser.open, [url]).start()
     uvicorn.run(create_app(cfg), host="127.0.0.1", port=port, log_level="warning")
+
+
+@app.callback()
+def main(ctx: typer.Context) -> None:
+    """Der Senser: spaced-repetition flashcards in Markdown. Without a command, starts the web interface."""
+    if ctx.invoked_subcommand is None:
+        serve(port=8000, open_browser=True, config=None)

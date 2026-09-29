@@ -62,7 +62,7 @@ losing progress. `senser lint` reports missing and duplicate ids.
 
 | Command | Purpose |
 |---|---|
-| `senser serve [--port 8000] [--no-open]` | Start the web interface and open it in the browser |
+| `senser` or `senser serve [--port 8000] [--no-open]` | Start the web interface and open it in the browser |
 | `senser review [-d DECK]` | Review due cards, then new ones (limit: `new_per_day`) |
 | `senser status [-d DECK]` | Cards, new, due and mastery per deck, plus reviews today, pass rate and streak |
 | `senser list [-d DECK]` | All cards with their next due date |
