@@ -1,0 +1,11 @@
+# Config for trying out the example cards:
+#   senser serve -c examples/senser.toml
+#
+# For your own cards, create ~/.config/senser/senser.toml and point
+# cards_dir at your private cards folder. Relative paths are resolved
+# against the config file.
+
+cards_dir = "cards"
+db_path = ".senser/state.db"
+new_per_day = 15
+desired_retention = 0.9

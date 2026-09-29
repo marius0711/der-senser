@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Annotated, Optional
 
@@ -18,10 +18,10 @@ from rich.table import Table
 
 from senser.config import Config, load_config
 from senser.parser import Collection, load_cards
-from senser.scheduler import Outcome, Scheduler, utcnow
+from senser.scheduler import Outcome, Scheduler, interval_label, utcnow
 from senser.stats import activity, deck_stats, summarize
 from senser.store import Store
-from senser.study import Session
+from senser.study import Session, remaining_new
 
 app = typer.Typer(
     name="senser",
@@ -68,29 +68,9 @@ def _relative(path: Path, root: Path) -> str:
     return str(path.relative_to(root)) if path.is_relative_to(root) else str(path)
 
 
-def _interval(delta: timedelta) -> str:
-    minutes = delta.total_seconds() / 60
-    if minutes < 1:
-        return "<1m"
-    if minutes < 60:
-        return f"{minutes:.0f}m"
-    if minutes < 60 * 24:
-        return f"{minutes / 60:.0f}h"
-    days = minutes / (60 * 24)
-    if days < 31:
-        return f"{days:.0f}d"
-    if days < 365:
-        return f"{days / 30:.1f}mo"
-    return f"{days / 365:.1f}y"
-
-
 def _bar(fraction: float, width: int = 12) -> str:
     filled = round(fraction * width)
     return "█" * filled + "░" * (width - filled) + f" {fraction:4.0%}"
-
-
-def _local_midnight(now: datetime) -> datetime:
-    return now.astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 @app.command()
@@ -100,7 +80,7 @@ def review(deck: DeckOption = None, config: ConfigOption = None) -> None:
     cards = _select(collection, deck)
     now = utcnow()
     with Store(cfg.db_path) as store:
-        new_limit = max(0, cfg.new_per_day - store.first_reviews_since(_local_midnight(now)))
+        new_limit = remaining_new(store, cfg.new_per_day, now)
         session = Session(cards, store, Scheduler(cfg.desired_retention), new_limit, now)
         if not len(session):
             console.print("[green]Nothing due right now.[/] Come back later or add new cards.")
@@ -138,7 +118,7 @@ def _rating_line(outcomes: dict[Rating, Outcome]) -> str:
     parts = []
     for rating, (state, log) in outcomes.items():
         style = RATING_STYLES[rating]
-        parts.append(f"[{style}]{rating.value} {rating.name}[/] [dim]{_interval(state.due - log.review_datetime)}[/]")
+        parts.append(f"[{style}]{rating.value} {rating.name}[/] [dim]{interval_label(state.due - log.review_datetime)}[/]")
     return "   ".join(parts)
 
 
@@ -206,3 +186,25 @@ def list_cards(deck: DeckOption = None, config: ConfigOption = None) -> None:
         due = state.due.astimezone().strftime("%Y-%m-%d %H:%M") if state else "new"
         table.add_row(card.id, escape(card.deck), card.kind, escape(card.prompt.splitlines()[0]), due)
     console.print(table)
+
+
+@app.command()
+def serve(
+    port: Annotated[int, typer.Option(help="Port to listen on.")] = 8000,
+    open_browser: Annotated[bool, typer.Option("--open/--no-open", help="Open the browser on start.")] = True,
+    config: ConfigOption = None,
+) -> None:
+    """Start the local web interface."""
+    import threading
+    import webbrowser
+
+    import uvicorn
+
+    from senser.web.app import create_app
+
+    cfg, _ = _load(config)  # fail early on a missing cards directory
+    url = f"http://127.0.0.1:{port}"
+    console.print(f"[bold]Der Senser[/] running at [link={url}]{url}[/]  ·  cards: {cfg.cards_dir}  ·  Ctrl+C to stop")
+    if open_browser:
+        threading.Timer(1.0, webbrowser.open, [url]).start()
+    uvicorn.run(create_app(cfg), host="127.0.0.1", port=port, log_level="warning")

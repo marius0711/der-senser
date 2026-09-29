@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Cards · Der Senser{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Cards</h1>
+    <p class="muted">{{ rows|length }} card faces{% if deck %} in <strong>{{ deck }}</strong>{% endif %}</p>
+  </div>
+  {% if deck %}<a class="button" href="/review/start?deck={{ deck|urlencode }}">Review {{ deck }}</a>{% endif %}
+</section>
+
+<nav class="filters">
+  <a class="chip{% if not deck %} active{% endif %}" href="/cards">All</a>
+  {% for name in decks %}
+  <a class="chip{% if name == deck %} active{% endif %}" href="/cards?deck={{ name|urlencode }}">{{ name }}</a>
+  {% endfor %}
+</nav>
+
+<section class="panel">
+  <table class="cards">
+    <thead>
+      <tr><th>ID</th><th>Prompt</th><th>Type</th><th class="num">Recall</th><th>Next review</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td><code>{{ row.card.id }}</code></td>
+        <td class="prompt-cell">
+          <span class="prompt-text">{{ row.title }}</span>
+          {% if not deck %}<span class="muted small">{{ row.card.deck }}</span>{% endif %}
+        </td>
+        <td><span class="chip subtle">{{ row.card.kind }}</span></td>
+        <td class="num">{% if row.learning %}<span class="chip subtle">learning</span>{% elif row.recall is not none %}{{ "%.0f"|format(row.recall * 100) }}%{% else %}<span class="muted">–</span>{% endif %}</td>
+        <td>{% if row.due %}<span class="{% if row.overdue %}due{% endif %}">{{ row.due }}</span>{% else %}<span class="chip new">new</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

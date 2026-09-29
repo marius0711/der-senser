@@ -46,7 +46,9 @@ class Store:
     def __init__(self, path: Path | str) -> None:
         if str(path) != ":memory:":
             Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self._db = sqlite3.connect(path)
+        # The web app opens one store and uses it from the server's event-loop
+        # thread; requests are handled one at a time, so sharing is safe.
+        self._db = sqlite3.connect(path, check_same_thread=False)
         self._db.executescript(SCHEMA)
 
     def __enter__(self) -> Store:

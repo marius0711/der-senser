@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import copy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import fsrs
 from fsrs import Rating
@@ -13,6 +13,23 @@ Outcome = tuple[fsrs.Card, fsrs.ReviewLog]
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def interval_label(delta: timedelta) -> str:
+    """Compact label for a scheduling interval, e.g. '10m', '3d', '1.5mo'."""
+    minutes = delta.total_seconds() / 60
+    if minutes < 1:
+        return "<1m"
+    if minutes < 60:
+        return f"{minutes:.0f}m"
+    if minutes < 60 * 24:
+        return f"{minutes / 60:.0f}h"
+    days = minutes / (60 * 24)
+    if days < 31:
+        return f"{days:.0f}d"
+    if days < 365:
+        return f"{days / 30:.1f}mo"
+    return f"{days / 365:.1f}y"
 
 
 class Scheduler:

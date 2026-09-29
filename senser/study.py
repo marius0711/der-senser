@@ -16,6 +16,15 @@ from senser.store import Store
 REQUEUE_WINDOW = timedelta(minutes=20)
 
 
+def local_midnight(now: datetime) -> datetime:
+    return now.astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def remaining_new(store: Store, per_day: int, now: datetime) -> int:
+    """How many new cards may still be introduced today."""
+    return max(0, per_day - store.first_reviews_since(local_midnight(now)))
+
+
 def build_queue(cards: list[Card], states: dict[str, fsrs.Card], now: datetime, new_limit: int) -> list[Card]:
     """Due cards (most overdue first), then up to `new_limit` new cards.
 

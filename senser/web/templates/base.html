@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Der Senser{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232563eb'/><path d='M9 21c3 0 3-10 7-10s4 10 7 10' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/></svg>">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path d="M9 21c3 0 3-10 7-10s4 10 7 10"/></svg>
+      Der Senser
+    </a>
+    <nav>
+      <a href="/" {% if request.url.path == "/" %}aria-current="page"{% endif %}>Dashboard</a>
+      <a href="/review/start" {% if request.url.path.startswith("/review") %}aria-current="page"{% endif %}>Review</a>
+      <a href="/cards" {% if request.url.path == "/cards" %}aria-current="page"{% endif %}>Cards</a>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

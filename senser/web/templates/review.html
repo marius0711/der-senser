@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Review · Der Senser{% endblock %}
+{% block content %}
+{% if card %}
+<section class="review">
+  <div class="review-meta">
+    <span class="chip">{{ card.deck }}</span>
+    <span class="chip subtle">{{ card.kind }}</span>
+    <span class="muted">{{ reviewed }} done · {{ remaining }} left</span>
+  </div>
+  <div class="progress"><span style="width: {{ (reviewed / (reviewed + remaining) * 100)|round(1) }}%"></span></div>
+
+  <article class="flashcard prompt{% if card.kind == 'cloze' %} replaced-on-reveal{% endif %}">
+    {{ card.prompt|markdown|safe }}
+  </article>
+
+  <details id="reveal">
+    <summary class="button primary reveal-button">Show answer <kbd>Space</kbd></summary>
+    <article class="flashcard answer">
+      {{ card.answer|markdown|safe }}
+    </article>
+    <form method="post" action="/review/answer" class="ratings">
+      <input type="hidden" name="card_id" value="{{ card.id }}">
+      <input type="hidden" name="duration_ms" value="">
+      {% for r in ratings %}
+      <button type="submit" name="rating" value="{{ r.value }}" class="rate rate-{{ r.name|lower }}">
+        <span class="rate-name">{{ r.name }}</span>
+        <span class="rate-interval">{{ r.interval }}</span>
+        <kbd>{{ r.value }}</kbd>
+      </button>
+      {% endfor %}
+    </form>
+  </details>
+  <p class="muted small center">Space: show answer · 1–4: rate · Esc: back to dashboard</p>
+</section>
+{% else %}
+<section class="done">
+  <div class="done-icon" aria-hidden="true">✓</div>
+  <h1>{% if reviewed %}Session done{% else %}Nothing to review{% endif %}</h1>
+  <p class="muted">
+    {% if reviewed %}{{ reviewed }} review{{ "" if reviewed == 1 else "s" }}{% if deck %} in <strong>{{ deck }}</strong>{% endif %}. Nice work.
+    {% else %}No due or new cards{% if deck %} in <strong>{{ deck }}</strong>{% endif %} right now.{% endif %}
+  </p>
+  <div class="done-actions">
+    <a class="button primary" href="/">Dashboard</a>
+    <a class="button" href="/review/start">Review all decks</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

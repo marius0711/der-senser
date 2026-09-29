@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Knowledge state</h1>
+    <p class="muted">{{ total.total }} cards in {{ decks|length }} decks · {{ cards_dir }}</p>
+  </div>
+  {% if queue_size %}
+    <a class="button primary" href="/review/start">Start review <span class="badge">{{ queue_size }}</span></a>
+  {% else %}
+    <span class="button disabled">Nothing due right now</span>
+  {% endif %}
+</section>
+
+{% if issues %}
+<div class="notice">
+  <strong>{{ issues|length }} problem(s) in card files.</strong> Affected cards are skipped. Run <code>senser lint</code> for details.
+  <ul>
+    {% for issue in issues[:5] %}<li><code>{{ issue.source.name }}:{{ issue.line }}</code> {{ issue.message }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="tiles">
+  <div class="tile"><span class="label">Mastery</span><span class="value">{{ "%.0f"|format(total.mastery * 100) }}%</span></div>
+  <div class="tile"><span class="label">Due now</span><span class="value">{{ total.due }}</span></div>
+  <div class="tile"><span class="label">New left today</span><span class="value">{{ new_limit }}</span></div>
+  <div class="tile"><span class="label">Reviews today</span><span class="value">{{ activity.reviews_today }}</span></div>
+  <div class="tile"><span class="label">Pass rate 30d</span><span class="value">{% if activity.pass_rate_30d is not none %}{{ "%.0f"|format(activity.pass_rate_30d * 100) }}%{% else %}–{% endif %}</span></div>
+  <div class="tile"><span class="label">Streak</span><span class="value">{{ activity.streak_days }}<small> {{ "day" if activity.streak_days == 1 else "days" }}</small></span></div>
+</section>
+
+<section class="panel">
+  <table class="decks">
+    <thead>
+      <tr><th>Deck</th><th class="num hide-sm">Cards</th><th class="num hide-sm">New</th><th class="num">Due</th><th class="mastery-col">Mastery</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for row in decks %}
+      <tr>
+        <td><a href="/cards?deck={{ row.deck|urlencode }}">{{ row.deck }}</a></td>
+        <td class="num hide-sm">{{ row.total }}</td>
+        <td class="num hide-sm">{{ row.new }}</td>
+        <td class="num">{% if row.due %}<span class="due">{{ row.due }}</span>{% else %}0{% endif %}</td>
+        <td class="mastery-col">
+          <div class="bar" title="{{ '%.1f'|format(row.mastery * 100) }}%"><span style="width: {{ '%.1f'|format(row.mastery * 100) }}%"></span></div>
+          <span class="bar-label">{{ "%.0f"|format(row.mastery * 100) }}%</span>
+        </td>
+        <td class="actions">{% if row.due or row.new %}<a class="button small" href="/review/start?deck={{ row.deck|urlencode }}">Review</a>{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No cards found. Add Markdown files to {{ cards_dir }}.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+<p class="muted small">Mastery is the mean recall probability of a deck. New cards and cards still in their first learning steps count as 0.</p>
+{% endblock %}
