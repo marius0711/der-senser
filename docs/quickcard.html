@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Senser Quick Card</title>
+<style>
+/* Layout: one compact reference sheet, a header strip, then a two-column grid of panels
+   that stacks to one column on phones. Palette borrows the app's own blue and neutrals. */
+:root {
+  --bg: #f4f6f9;
+  --panel: #ffffff;
+  --line: #dfe4eb;
+  --fg: #151a22;
+  --muted: #5f6b7c;
+  --accent: #2563eb;
+  --accent-soft: #e7eefe;
+  --key-bg: #f7f8fa;
+  --key-edge: #c9d0da;
+  --again: #d42a2a;
+  --hard: #c46a04;
+  --good: #16924a;
+  --easy: #2563eb;
+  --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1216;
+    --panel: #171b22;
+    --line: #29303b;
+    --fg: #e6e9ef;
+    --muted: #919bab;
+    --accent: #6b98ff;
+    --accent-soft: #1b2744;
+    --key-bg: #1f242d;
+    --key-edge: #3a4250;
+    --again: #f06a6a;
+    --hard: #eaa243;
+    --good: #45c47e;
+    --easy: #6b98ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1216;
+  --panel: #171b22;
+  --line: #29303b;
+  --fg: #e6e9ef;
+  --muted: #919bab;
+  --accent: #6b98ff;
+  --accent-soft: #1b2744;
+  --key-bg: #1f242d;
+  --key-edge: #3a4250;
+  --again: #f06a6a;
+  --hard: #eaa243;
+  --good: #45c47e;
+  --easy: #6b98ff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 var(--font-body);
+  padding: 28px 16px 48px;
+}
+.sheet { max-width: 980px; margin: 0 auto; display: grid; gap: 14px; }
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-bottom: 6px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { width: 34px; height: 34px; flex: none; }
+.brand rect { fill: var(--accent); }
+.brand path { stroke: var(--panel); stroke-width: 3; fill: none; stroke-linecap: round; }
+h1 { margin: 0; font-size: 1.55rem; line-height: 1.1; letter-spacing: -0.01em; font-weight: 700; }
+.sub { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+.start {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.start code.big {
+  font: 600 1.05rem var(--font-mono);
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  min-width: 0;
+}
+.panel.wide { grid-column: 1 / -1; }
+h2 {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
+  font: 600 0.8rem var(--font-mono);
+  color: var(--fg);
+  background: var(--key-bg);
+  border: 1px solid var(--key-edge);
+  border-bottom-width: 3px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--key-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: center; margin: 0; }
+.keys dt { display: flex; gap: 4px; }
+.keys dd { margin: 0; }
+
+.ratings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.rate {
+  --c: var(--good);
+  border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line));
+  background: color-mix(in srgb, var(--c) 8%, var(--panel));
+  border-radius: 10px;
+  padding: 10px 10px 12px;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-width: 0;
+}
+.rate .head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.rate b { color: var(--c); font-size: 0.98rem; }
+.rate p { margin: 0; font-size: 0.84rem; color: var(--muted); line-height: 1.4; }
+.rate.again { --c: var(--again); }
+.rate.hard { --c: var(--hard); }
+.rate.good { --c: var(--good); }
+.rate.easy { --c: var(--easy); }
+
+ul.rules, ol.steps { margin: 0; padding-left: 18px; display: grid; gap: 5px; }
+ul.rules li::marker { color: var(--accent); }
+ol.steps li::marker { color: var(--accent); font-weight: 600; font-family: var(--font-mono); }
+
+.cmds { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.cmds td { padding: 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cmds tr:last-child td { border-bottom: none; }
+.cmds td:first-child { padding-right: 14px; white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+
+pre {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: var(--key-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: 0.8rem/1.5 var(--font-mono);
+  overflow-x: auto;
+}
+pre .h { color: var(--accent); font-weight: 600; }
+pre .de { color: var(--muted); }
+
+.note {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  font-size: 0.86rem;
+}
+.paths { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 0.9rem; }
+.paths dt { color: var(--muted); }
+.paths dd { margin: 0; min-width: 0; }
+
+@media (max-width: 720px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .ratings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"></rect><path d="M9 21c3 0 3-10 7-10s4 10 7 10"></path></svg>
+      <div>
+        <h1>Der Senser</h1>
+        <p class="sub">Quick card: controls, rating, adding cards</p>
+      </div>
+    </div>
+    <div class="start">
+      Start: <code class="big">senser</code> Stop: <kbd>Ctrl</kbd><kbd>C</kbd> in the terminal
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Review keys (browser)</h2>
+      <dl class="keys">
+        <dt><kbd>Space</kbd></dt><dd>Show the answer (also <kbd>Enter</kbd>)</dd>
+        <dt><kbd>D</kbd></dt><dd>German version of the question, answer stays hidden</dd>
+        <dt><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd></dt><dd>Rate the card, next one loads</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Back to the dashboard</dd>
+      </dl>
+      <p class="note">In the terminal (<code>senser review</code>): Enter, <code>d</code>, <code>1</code> to <code>4</code>, <code>q</code> to quit.</p>
+    </section>
+
+    <section class="panel">
+      <h2>A clean session</h2>
+      <ul class="rules">
+        <li>Answer in your head (or aloud) <strong>before</strong> revealing. Recognising the answer is not the same as recalling it.</li>
+        <li>Try the English question first. Press <kbd>D</kbd> only if you are stuck. It does not change the schedule, it is only counted.</li>
+        <li>Once a day is enough. Due cards come first, then up to 15 new ones.</li>
+        <li>Finish the session, since <strong>Again</strong> cards return within minutes.</li>
+      </ul>
+    </section>
+
+    <section class="panel wide">
+      <h2>Rating honestly</h2>
+      <div class="ratings">
+        <div class="rate again"><div class="head"><b>Again</b><kbd>1</kbd></div><p>Did not know it, or got it wrong. Comes back in a minute.</p></div>
+        <div class="rate hard"><div class="head"><b>Hard</b><kbd>2</kbd></div><p>Got it, but only after a real struggle or partly.</p></div>
+        <div class="rate good"><div class="head"><b>Good</b><kbd>3</kbd></div><p>Knew it with normal effort. Your default.</p></div>
+        <div class="rate easy"><div class="head"><b>Easy</b><kbd>4</kbd></div><p>Instantly, no thinking. Use it sparingly.</p></div>
+      </div>
+      <p class="note">Each button shows the interval it will schedule. Mastery counts a card only after it has left its learning steps, so it rises over days rather than in one session.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Adding a card</h2>
+      <ol class="steps">
+        <li>Open the topic file in <code>~/senser-cards/&lt;deck&gt;/</code></li>
+        <li><code>senser ids</code> gives the next free id</li>
+        <li>Write the card and add a <code>DE:</code> line</li>
+        <li><code>senser lint</code> should report 0 problems</li>
+        <li>Reload the browser, then commit in the cards folder</li>
+      </ol>
+<pre><span class="h">## Q: English question? ^se-012</span>
+<span class="de">DE: Deutsche Frage?</span>
+**Core answer first.** Then short context.
+
+<span class="h">## Cloze: Title ^se-013</span>
+<span class="de">DE: Satz mit {{Lücke}}.</span>
+Sentence with a {{blank}}.
+
+<span class="h">## Term: Vorspannkraft = preload ^as-004</span>
+
+<span class="h">## Sequence: Process name ^qa-004</span>
+<span class="de">DE: Name des Ablaufs</span>
+1. First step
+2. Second step</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Rules that protect your progress</h2>
+      <ul class="rules">
+        <li><strong>Never change an id</strong> once a card has been reviewed. Editing the text is fine and keeps the progress.</li>
+        <li>Term cards get no <code>DE:</code> line, since they are asked in both directions.</li>
+        <li>One idea per card. If the answer grows past about 6 lines, split it.</li>
+        <li>File names are one lowercase word. Folder = deck.</li>
+        <li>Only textbook knowledge. Nothing company-internal, not even in the private repo.</li>
+      </ul>
+      <h2 style="margin-top:16px">Terminal</h2>
+      <div class="table-wrap">
+        <table class="cmds">
+          <tr><td><code>senser</code></td><td>Web interface</td></tr>
+          <tr><td><code>senser status</code></td><td>Knowledge state per deck</td></tr>
+          <tr><td><code>senser review -d sensors</code></td><td>Review one deck in the terminal</td></tr>
+          <tr><td><code>senser list</code></td><td>All cards with next review</td></tr>
+          <tr><td><code>senser ids</code></td><td>Next free id per deck</td></tr>
+          <tr><td><code>senser lint</code></td><td>Check card files</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel wide">
+      <h2>Where things live</h2>
+      <dl class="paths">
+        <dt>Cards</dt><dd><code>~/senser-cards</code>, a private git repo. Commit after changes.</dd>
+        <dt>Progress</dt><dd><code>~/.senser/state.db</code>, not in git. Do not delete it, since it holds your whole review history.</dd>
+        <dt>Settings</dt><dd><code>~/.config/senser/senser.toml</code> (new cards per day, target retention)</dd>
+        <dt>Full guide</dt><dd><code>docs/cards.md (next to this file)</code></dd>
+      </dl>
+    </section>
+  </div>
+</div>
+</body>
+</html>

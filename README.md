@@ -44,6 +44,8 @@ The flexspline typically has {{2}} fewer teeth than the circular spline.
 The optional `DE:` line holds a German version of the question. It is shown on request
 (**D** key) and its use is tracked.
 
+A one-page summary of keys, rating and commands is in [docs/quickcard.md](docs/quickcard.md).
+
 **The full guide for writing cards, covering types, ids, the German line, style and
 the checklist, is in [docs/cards.md](docs/cards.md).**
 
