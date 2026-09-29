@@ -92,8 +92,15 @@ Never put confidential or company-internal information into cards that are synce
 
 1. ~~Core: parser, FSRS scheduling, SQLite store, CLI review~~
 2. ~~Local web interface (FastAPI, server-rendered, no JS framework)~~
-3. Import of card bundles with a preview (new, changed and conflicting cards), progress export (Markdown/HTML/CSV)
-4. More card types (decision cards, ordering), release
+   - ~~German prompt line (`DE:`) with usage tracking, `senser ids`, authoring guide~~
+3. Import and export
+   - Import card bundles (single `.md` file or folder) into existing decks, via web upload and
+     CLI, with a preview of new, changed and conflicting cards before anything is written
+   - Progress export per deck as a Markdown/HTML report and CSV/JSON raw data
+4. Polish and release
+   - More card types (decision cards: requirement to choice, ordering)
+   - Hover translations for terms, based on the Term cards
+   - Public GitHub release
 
 ## License
 
