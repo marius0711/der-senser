@@ -114,7 +114,7 @@ Prefixes in use:
 | sensors | `se` | industrialization | `in` |
 | actuators | `ac` | robotics | `ro` |
 | metrology | `me` | safety | `sa` |
-| digitalization | `di` | | |
+| digitalization | `di` | electronics | `el` |
 
 For a new deck, choose a new two-letter prefix and add it to this table.
 
