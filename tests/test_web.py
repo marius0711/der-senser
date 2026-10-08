@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from senser.config import Config
+from senser.store import Store
 from senser.web.app import create_app
 
 CARDS = """\
@@ -70,5 +71,5 @@ def test_german_help_is_recorded(tmp_path):
         page = client.get("/review/start")
         assert "Was ist ein DMS?" in page.text
         client.post("/review/answer", data={"card_id": "s-1", "rating": 3, "hint": 1})
-        assert "German help 30d" in client.get("/").text
-        assert ">100%<" in client.get("/").text.split("German help 30d")[1][:80]
+    with Store(config.db_path) as store:
+        assert [review.hint for review in store.reviews()] == [True]

@@ -90,7 +90,7 @@ only, not the answer.
 - For `Cloze`, write the German sentence with the same `{{blanks}}`. They are hidden too.
 - For `Sequence`, translate the name.
 - `Term` cards must not have a `DE:` line, because they are bilingual already.
-- Each use is counted. The dashboard tile **German help 30d** shows how often you needed it.
+- Each use is counted. `senser status` shows **German help (30d)**, the share of reviews where you needed it.
   If the number drops over time, your technical English is improving.
 
 ## Ids

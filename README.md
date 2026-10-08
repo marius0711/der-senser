@@ -55,14 +55,14 @@ the checklist, is in [docs/cards.md](docs/cards.md).**
 |---|---|
 | `senser` or `senser serve [--port 8000] [--no-open]` | Start the web interface and open it in the browser |
 | `senser review [-d DECK]` | Review due cards, then new ones (limit: `new_per_day`) |
-| `senser status [-d DECK]` | Cards, new, due and mastery per deck, plus reviews today, pass rate and streak |
+| `senser status [-d DECK]` | Cards, new, due and mastery per deck, plus reviews today, pass rate, German help rate and streak |
 | `senser list [-d DECK]` | All cards with their next due date |
 | `senser lint` | Validate card files |
 | `senser ids` | Id prefixes in use and the next free id per deck |
 
 ### Web interface
 
-- **Dashboard**: mastery, due and new cards per deck, reviews today, 30-day pass rate, German help rate, streak
+- **Dashboard**: mastery, due and new cards per deck, reviews today, 30-day pass rate, streak
 - **Review**: **Space** reveals the answer, **D** shows the German question, **1–4** rates it (Again, Hard, Good, Easy), **Esc** goes back.
   Each rating button shows the interval it will schedule.
 - **Cards**: all cards per deck with recall probability and next review date
