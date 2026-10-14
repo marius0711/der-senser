@@ -15,6 +15,9 @@ from senser.store import Store
 # Cards scheduled again within this window (learning steps) stay in the session.
 REQUEUE_WINDOW = timedelta(minutes=20)
 
+# New cards added on request once the daily limit is used up.
+EXTRA_NEW = 10
+
 
 def local_midnight(now: datetime) -> datetime:
     return now.astimezone().replace(hour=0, minute=0, second=0, microsecond=0)

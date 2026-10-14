@@ -23,7 +23,7 @@ from senser.parser import Collection, load_cards
 from senser.scheduler import Outcome, Scheduler, interval_label, utcnow
 from senser.stats import activity, deck_stats, summarize
 from senser.store import Store
-from senser.study import Session, build_queue, remaining_new
+from senser.study import EXTRA_NEW, Session, build_queue, remaining_new
 
 HERE = Path(__file__).parent
 MARKDOWN = MarkdownIt("commonmark", {"html": False}).enable("table")
@@ -44,10 +44,11 @@ class WebState:
     def collection(self) -> Collection:
         return load_cards(self.config.cards_dir)
 
-    def start(self, deck: str | None) -> None:
+    def start(self, deck: str | None, extra: int = 0) -> None:
+        """Start a session. `extra` allows new cards beyond the daily limit."""
         cards = [card for card in self.collection().cards if card.in_deck(deck)]
         now = utcnow()
-        new_limit = remaining_new(self.store, self.config.new_per_day, now)
+        new_limit = remaining_new(self.store, self.config.new_per_day, now) + extra
         self.session = Session(cards, self.store, self.scheduler, new_limit, now)
         self.deck, self.reviewed, self.pending = deck, 0, None
 
@@ -77,13 +78,15 @@ def create_app(config: Config) -> FastAPI:
             "activity": activity(web.store.reviews(since=now - timedelta(days=400)), now),
             "queue_size": len(build_queue(collection.cards, states, now, new_limit)),
             "new_limit": new_limit,
+            "new_per_day": config.new_per_day,
+            "extra_new": EXTRA_NEW,
             "issues": collection.issues,
             "cards_dir": config.cards_dir,
         })
 
     @app.get("/review/start")
-    async def review_start(deck: str | None = None):
-        web.start(deck or None)
+    async def review_start(deck: str | None = None, extra: bool = False):
+        web.start(deck or None, EXTRA_NEW if extra else 0)
         return RedirectResponse("/review", status_code=303)
 
     @app.get("/review", response_class=HTMLResponse)
@@ -92,7 +95,16 @@ def create_app(config: Config) -> FastAPI:
             web.start(None)
         card = web.session.current
         context = {"card": card, "deck": web.deck, "reviewed": web.reviewed, "remaining": len(web.session)}
-        if card is not None:
+        if card is None:
+            # Explain an empty session: is the daily limit holding back new cards?
+            states = web.store.states()
+            context["new_waiting"] = sum(
+                1 for c in web.collection().cards if c.in_deck(web.deck) and c.id not in states
+            )
+            context["new_left"] = remaining_new(web.store, config.new_per_day, utcnow())
+            context["new_per_day"] = config.new_per_day
+            context["extra_new"] = EXTRA_NEW
+        else:
             outcomes = web.session.outcomes(utcnow())
             web.pending = (card.id, outcomes)
             context["ratings"] = [

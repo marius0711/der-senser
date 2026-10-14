@@ -46,11 +46,13 @@
   <h1>{% if reviewed %}Session done{% else %}Nothing to review{% endif %}</h1>
   <p class="muted">
     {% if reviewed %}{{ reviewed }} review{{ "" if reviewed == 1 else "s" }}{% if deck %} in <strong>{{ deck }}</strong>{% endif %}. Nice work.
+    {% elif new_waiting and not new_left %}The daily limit of {{ new_per_day }} new cards is reached and nothing is due{% if deck %} in <strong>{{ deck }}</strong>{% endif %}. New cards waiting: {{ new_waiting }}.
     {% else %}No due or new cards{% if deck %} in <strong>{{ deck }}</strong>{% endif %} right now.{% endif %}
   </p>
   <div class="done-actions">
     <a class="button primary" href="/">Dashboard</a>
-    <a class="button" href="/review/start">Review all decks</a>
+    {% if new_waiting and not new_left %}<a class="button" href="/review/start?{% if deck %}deck={{ deck|urlencode }}&amp;{% endif %}extra=1">Learn {{ extra_new }} more new cards</a>
+    {% else %}<a class="button" href="/review/start">Review all decks</a>{% endif %}
   </div>
 </section>
 {% endif %}

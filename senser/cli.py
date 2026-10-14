@@ -21,7 +21,7 @@ from senser.parser import Collection, load_cards
 from senser.scheduler import Outcome, Scheduler, interval_label, utcnow
 from senser.stats import activity, deck_stats, summarize
 from senser.store import Store
-from senser.study import Session, remaining_new
+from senser.study import EXTRA_NEW, Session, remaining_new
 
 app = typer.Typer(
     name="senser",
@@ -74,16 +74,28 @@ def _bar(fraction: float, width: int = 12) -> str:
 
 
 @app.command()
-def review(deck: DeckOption = None, config: ConfigOption = None) -> None:
+def review(
+    deck: DeckOption = None,
+    extra: Annotated[bool, typer.Option("--extra", help=f"Learn {EXTRA_NEW} new cards beyond the daily limit.")] = False,
+    config: ConfigOption = None,
+) -> None:
     """Review due cards and introduce new ones."""
     cfg, collection = _load(config)
     cards = _select(collection, deck)
     now = utcnow()
     with Store(cfg.db_path) as store:
         new_limit = remaining_new(store, cfg.new_per_day, now)
-        session = Session(cards, store, Scheduler(cfg.desired_retention), new_limit, now)
+        session = Session(cards, store, Scheduler(cfg.desired_retention), new_limit + (EXTRA_NEW if extra else 0), now)
         if not len(session):
-            console.print("[green]Nothing due right now.[/] Come back later or add new cards.")
+            states = store.states()
+            waiting = sum(1 for card in cards if card.id not in states)
+            if waiting and not new_limit:
+                console.print(
+                    f"[yellow]Daily limit of {cfg.new_per_day} new cards reached[/] and nothing is due. "
+                    f"New cards waiting: {waiting}. Use [bold]senser review --extra[/] to learn {EXTRA_NEW} more."
+                )
+            else:
+                console.print("[green]Nothing due right now.[/] Come back later or add new cards.")
             return
         reviewed = _run(session)
     console.print(f"\n[bold]Session done:[/] {reviewed} review(s).")

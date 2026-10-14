@@ -73,3 +73,19 @@ def test_german_help_is_recorded(tmp_path):
         client.post("/review/answer", data={"card_id": "s-1", "rating": 3, "hint": 1})
     with Store(config.db_path) as store:
         assert [review.hint for review in store.reviews()] == [True]
+
+
+def test_daily_limit_offers_extra_cards(tmp_path):
+    deck = tmp_path / "cards" / "sensors"
+    deck.mkdir(parents=True)
+    (deck / "gauges.md").write_text(CARDS)
+    config = Config(cards_dir=tmp_path / "cards", db_path=tmp_path / "state.db", new_per_day=1)
+    with TestClient(create_app(config)) as client:
+        client.get("/review/start")
+        answer(client, "s-1")  # Easy: graduates, uses up the daily limit
+        dashboard = client.get("/").text
+        assert "Learn 10 more new cards" in dashboard
+        assert "+10 new" in dashboard
+        assert "daily limit of 1 new cards is reached" in client.get("/review/start?deck=sensors").text
+        page = client.get("/review/start?deck=sensors&extra=1")
+        assert "[…]" in page.text  # the cloze card is offered after all

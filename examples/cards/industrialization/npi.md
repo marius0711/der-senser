@@ -14,7 +14,7 @@ DE: Nenne wichtige Prinzipien der montagegerechten Konstruktion (Design for Asse
 - Use **standard parts** across variants
 
 ## Sequence: Typical hardware build phases up to series production ^in-002
-DE: Typische Build-Phasen bei Hardware bis zur Serienproduktion
+DE: Typische Bau- und Prüfphasen eines Hardwareprodukts bis zur Serienfertigung
 1. Prototype / proof of concept
 2. EVT: engineering validation test (does the design work?)
 3. DVT: design validation test (does it meet all specs and certifications?)

@@ -7,6 +7,8 @@
   </div>
   {% if queue_size %}
     <a class="button primary" href="/review/start">Start review <span class="badge">{{ queue_size }}</span></a>
+  {% elif total.new %}
+    <a class="button" href="/review/start?extra=1" title="Daily limit of {{ new_per_day }} new cards reached">Learn {{ extra_new }} more new cards</a>
   {% else %}
     <span class="button disabled">Nothing due right now</span>
   {% endif %}
@@ -46,7 +48,10 @@
           <div class="bar" title="{{ '%.1f'|format(row.mastery * 100) }}%"><span style="width: {{ '%.1f'|format(row.mastery * 100) }}%"></span></div>
           <span class="bar-label">{{ "%.0f"|format(row.mastery * 100) }}%</span>
         </td>
-        <td class="actions">{% if row.due or row.new %}<a class="button small" href="/review/start?deck={{ row.deck|urlencode }}">Review</a>{% endif %}</td>
+        <td class="actions">
+          {% if row.due or (row.new and new_limit) %}<a class="button small" href="/review/start?deck={{ row.deck|urlencode }}">Review</a>
+          {% elif row.new %}<a class="button small subtle" href="/review/start?deck={{ row.deck|urlencode }}&amp;extra=1" title="Daily limit reached. Learn {{ extra_new }} more new cards from this deck">+{{ extra_new }} new</a>{% endif %}
+        </td>
       </tr>
       {% else %}
       <tr><td colspan="6" class="muted">No cards found. Add Markdown files to {{ cards_dir }}.</td></tr>

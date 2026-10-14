@@ -71,7 +71,7 @@ progress. All rules are in [docs/cards.md](docs/cards.md).
 | Command | Purpose |
 |---|---|
 | `senser` or `senser serve [--port 8000] [--no-open]` | Start the web interface and open it in the browser |
-| `senser review [-d DECK]` | Review due cards, then new ones (limit: `new_per_day`), in the terminal |
+| `senser review [-d DECK] [--extra]` | Review due cards, then new ones (limit: `new_per_day`; `--extra` adds 10 more), in the terminal |
 | `senser status [-d DECK]` | Cards, new, due and mastery per deck, plus reviews today, pass rate, German help rate and streak |
 | `senser list [-d DECK]` | All cards with their next due date |
 | `senser lint` | Validate card files: missing or duplicate ids, malformed cards |
